@@ -27,6 +27,13 @@
   "homepage": "https://github.com/averman/rubahjs#readme",
   "devDependencies": {
     "mocha": "^5.2.0",
-    "nyc": "^13.1.0"
+    "nyc": "^13.1.0",
+    "why-is-node-running": "^2.0.3"
+  },
+  "dependencies": {
+    "files-tree": "^1.0.8",
+    "lodash.merge": "^4.6.1",
+    "reversible-handlebars": "0.0.7",
+    "watch": "^1.0.2"
   }
 }
