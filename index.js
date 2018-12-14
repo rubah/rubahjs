@@ -1,7 +1,7 @@
 const hb = require("reversible-handlebars");
 const watch = require("watch");
 const fs = require("fs");
-const merge = require("lodash.merge");
+const lodash = require("lodash");
 const ft = require('files-tree');
 
 const rubahjs = {
@@ -45,7 +45,13 @@ const rubahjs = {
                     let content = fs.readFileSync(fn).toString('utf8');
                     v = Object.assign({},v,this.reverse(tn,content));
                     v = this.templates[tn].dataToState(v);
-                    this.state = merge(this.state,v);
+                    this.state = lodash.merge(this.state,v,function(oV,sV){
+                        if (Array.isArray(oV)) {
+                            return oV.concat(sV);
+                        }
+                        if(typeof oV != 'object' && oV != sV)
+                            throw new Error('inconsistent value '+oV+' != '+sV);
+                    });
                }
             }catch(e){
             };
