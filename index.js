@@ -3,11 +3,13 @@ const watch = require("watch");
 const fs = require("fs");
 const lodash = require("lodash");
 const ft = require('files-tree');
+const isDirectory = require('is-directory');
 
 const rubahjs = {
     templates: {},
     state: {},
     monitor: {},
+    exclude: {},
     folder: '.',
     apply: function(templateName, data, templateId){
         const fileTemplate = this.templates[templateName];
@@ -38,6 +40,10 @@ const rubahjs = {
         }
     },
     fileCheck: function(fn){
+        for(const x in this.exclude){
+            if(this.exclude[x]=='directory' && fn.startsWith(x))return;
+            if(this.exclude[x]=='file' && fn==x)return;
+        }
         for(const tn in this.templates){
             try{
                let v = this.reverse(tn,fn,'filename');
@@ -63,6 +69,7 @@ const rubahjs = {
         this.templates[fileTemplate.templateName]=fileTemplate;
     },
     scan: function(folder, callback){
+        if(!callback && this.callback)callback=this.callback;
         folder = folder || this.folder;
         const files = ft.tree(folder);
         for(const f of files){
@@ -77,6 +84,7 @@ const rubahjs = {
             this.applyToFile(tn);
     },
     watch: function(folder, callback){
+        if(!callback && this.callback)callback=this.callback;
         folder = folder || this.folder;
         const parent = this;
         watch.createMonitor(folder, {interval: this.interval || 5}, function (monitor) {

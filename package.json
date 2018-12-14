@@ -1,13 +1,14 @@
 {
   "name": "rubahjs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "file template and reverse template service that watches and sync for changes",
   "main": "index.js",
   "scripts": {
     "test": "nyc mocha",
     "preversion": "npm test",
     "version": "git add .",
-    "postversion": "git push"
+    "postversion": "git push",
+    "preinstall": "ncu -u"
   },
   "repository": {
     "type": "git",
@@ -26,14 +27,15 @@
   },
   "homepage": "https://github.com/averman/rubahjs#readme",
   "devDependencies": {
-    "lodash": "^4.17.11",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "why-is-node-running": "^2.0.3"
   },
   "dependencies": {
+    "lodash": "^4.17.11",
     "files-tree": "^1.0.8",
-    "reversible-handlebars": "0.0.7",
+    "is-directory": "^0.3.1",
+    "reversible-handlebars": "0.0.8",
     "watch": "^1.0.2"
   }
 }
