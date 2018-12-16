@@ -1,6 +1,6 @@
 {
   "name": "rubahjs",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "file template and reverse template service that watches and sync for changes",
   "main": "index.js",
   "scripts": {
@@ -35,7 +35,7 @@
     "lodash": "^4.17.11",
     "files-tree": "^1.0.8",
     "is-directory": "^0.3.1",
-    "reversible-handlebars": "0.0.8",
+    "reversible-handlebars": "0.1.0",
     "watch": "^1.0.2"
   }
 }

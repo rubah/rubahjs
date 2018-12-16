@@ -41,8 +41,8 @@ const rubahjs = {
     },
     fileCheck: function(fn){
         for(const x in this.exclude){
-            if(this.exclude[x]=='directory' && fn.startsWith(x))return;
-            if(this.exclude[x]=='file' && fn==x)return;
+            if(this.exclude[x]=='prefix' && fn.startsWith(x))return;
+            if(this.exclude[x]=='exact' && fn==x)return;
         }
         for(const tn in this.templates){
             try{
