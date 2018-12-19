@@ -1,6 +1,6 @@
 {
   "name": "rubahjs",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "file template and reverse template service that watches and sync for changes",
   "main": "index.js",
   "scripts": {
