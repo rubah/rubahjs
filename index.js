@@ -3,6 +3,7 @@ const watch = require("watch");
 const fs = require("fs");
 const lodash = require("lodash");
 const ft = require('files-tree');
+const recursive = require("recursive-readdir");
 const isDirectory = require('is-directory');
 
 const rubahjs = {
@@ -16,7 +17,7 @@ const rubahjs = {
         if(!fileTemplate)throw new Error('unknown template '+templateName);
         const template = fileTemplate[templateId?templateId:'template'];
         if(!template)throw new Error('unknown templateid');
-        if(fileTemplate.partials)for(const partial of fileTemplate.partials)hb.registerPartial(partial);
+        if(fileTemplate.partials)for(const partial of fileTemplate.partials)hb.registerPartial(partial.name, partial.template);
         if(fileTemplate.helpers)for(const helper of fileTemplate.helpers)hb.registerPartial(helper);
         return hb.apply(template, data);
     },
@@ -71,12 +72,12 @@ const rubahjs = {
     scan: function(folder, callback){
         if(!callback && this.callback)callback=this.callback;
         folder = folder || this.folder;
-        const files = ft.tree(folder);
-        for(const f of files){
-            if(f.file)
-                this.fileCheck(f.path);
-        }
-        callback(this.state);
+        const files = recursive(folder,(err,files)=>{
+            for(const f of files){
+                this.fileCheck(f);
+            }
+            callback(this.state);
+        });
     },
     materialize: function(folder){
         folder = folder || this.folder;
