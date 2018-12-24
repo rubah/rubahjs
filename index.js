@@ -5,6 +5,7 @@ const lodash = require("lodash");
 const ft = require('files-tree');
 const recursive = require("recursive-readdir");
 const isDirectory = require('is-directory');
+const path = require("path")
 
 const rubahjs = {
     templates: {},
@@ -72,9 +73,11 @@ const rubahjs = {
     scan: function(folder, callback){
         if(!callback && this.callback)callback=this.callback;
         folder = folder || this.folder;
-        const files = recursive(folder,(err,files)=>{
+        recursive(folder,(err,files)=>{
+            if(err)throw(err);
+            // console.log(f);
             for(const f of files){
-                this.fileCheck(f);
+                this.fileCheck(path.resolve(process.cwd(),f));
             }
             callback(this.state);
         });
