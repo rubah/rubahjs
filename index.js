@@ -19,7 +19,7 @@ const rubahjs = {
         const template = fileTemplate[templateId?templateId:'template'];
         if(!template)throw new Error('unknown templateid');
         if(fileTemplate.partials)for(const partial of fileTemplate.partials)hb.registerPartial(partial.name, partial.template);
-        if(fileTemplate.helpers)for(const helper of fileTemplate.helpers)hb.registerPartial(helper);
+        if(fileTemplate.helpers)for(const helper of fileTemplate.helpers)hb.registerHelper(helper);
         return hb.apply(template, data);
     },
     reverse: function(templateName, content, templateId){
@@ -28,7 +28,7 @@ const rubahjs = {
         const template = fileTemplate[templateId?templateId:'template'];
         if(!template)throw new Error('unknown templateid');
         if(fileTemplate.partials)for(const partial of fileTemplate.partials)hb.registerPartial(partial);
-        if(fileTemplate.helpers)for(const helper of fileTemplate.helpers)hb.registerPartial(helper);
+        if(fileTemplate.helpers)for(const helper of fileTemplate.helpers)hb.registerHelper(helper);
         return hb.reverse(template, content);
     },
     applyToFile: function(templateName){
