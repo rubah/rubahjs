@@ -62,6 +62,10 @@ const rubahjs = {
                     });
                }
             }catch(e){
+                if(process.env.rubahlog && process.env.rubahlog=="trace"){
+                    console.log(fn);
+                    console.log(e);
+                }
             };
         }
     },
@@ -95,14 +99,21 @@ const rubahjs = {
             monitor.files[folder];
             parent.monitor[folder]=monitor;
             const update = function(){parent.scan(folder,callback)};
+            let updatePromise = false;
             monitor.on("created", function (f, stat) {
-                update();
+                if(!updatePromise){
+                    updatePromise = new Promise((v,j)=>{setTimeout(function() {update(); updatePromise=false}, 1000);});
+                }
             })
             monitor.on("changed", function (f, curr, prev) {
-                update();
+                if(!updatePromise){
+                    updatePromise = new Promise((v,j)=>{setTimeout(function() {update(); updatePromise=false}, 1000);});
+                }
             })
             monitor.on("removed", function (f, stat) {
-                update();
+                if(!updatePromise){
+                    updatePromise = new Promise((v,j)=>{setTimeout(function() {update(); updatePromise=false}, 1000);});
+                }
             })
         })
     }
