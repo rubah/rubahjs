@@ -11,7 +11,7 @@ const rubahjs = {
     templates: {},
     state: {},
     monitor: {},
-    exclude: {},
+    exclude: {folder: [], file: []},
     folder: '.',
     apply: function(templateName, data, templateId){
         const fileTemplate = this.templates[templateName];
@@ -42,6 +42,7 @@ const rubahjs = {
         }
     },
     fileCheck: function(fn){
+        let changed = false;
         for(const x in this.exclude){
             if(this.exclude[x]=='prefix' && fn.startsWith(x))return;
             if(this.exclude[x]=='exact' && fn==x)return;
@@ -60,6 +61,8 @@ const rubahjs = {
                         if(typeof oV != 'object' && oV != sV)
                             throw new Error('inconsistent value '+oV+' != '+sV);
                     });
+                    
+                    changed = true;
                }
             }catch(e){
                 if(process.env.rubahlog && process.env.rubahlog=="trace"){
@@ -67,23 +70,50 @@ const rubahjs = {
                     console.log(e);
                 }
             };
-        }
+        };
+        return changed;
     },
     register: function(fileTemplate){
         if(!fileTemplate.stateToData)fileTemplate.stateToData = function(x){return [x]};
         if(!fileTemplate.dataToState)fileTemplate.dataToState = function(x){return x};
         this.templates[fileTemplate.templateName]=fileTemplate;
     },
-    scan: function(folder, callback){
+
+    isExcluded: function(f){
+        const file = path.resolve(process.cwd(),f);
+        let skipFlag = false;
+        for(let k of this.exclude.folder){
+            const check = path.resolve(process.cwd(),k);
+            if(file.startsWith(check)){
+                // console.log('skipping '+file+' on rule folder of '+check);
+                skipFlag = true;
+                break;
+            }
+        }
+        if(!skipFlag)
+            for(let k of this.exclude.file){
+                const check = path.resolve(process.cwd(),k);
+                if(file == check){
+                // console.log('skipping '+file+' on rule file of '+check);
+                    skipFlag = true;
+                    break;
+                }
+            }
+        return skipFlag;
+    },
+    scan: function(folder, callback, forced){
         if(!callback && this.callback)callback=this.callback;
         folder = folder || this.folder;
+        let changed = false;
         recursive(folder,(err,files)=>{
             if(err)throw(err);
             // console.log(f);
             for(const f of files){
-                this.fileCheck(path.resolve(process.cwd(),f));
+                if(!this.isExcluded(f, this))
+                    changed = changed || this.fileCheck(path.resolve(process.cwd(),f));
             }
-            callback(this.state);
+            if(changed || forced)
+                callback(this.state);
         });
     },
     materialize: function(folder){
@@ -98,21 +128,21 @@ const rubahjs = {
         watch.createMonitor(folder, {interval: this.interval || 5}, function (monitor) {
             monitor.files[folder];
             parent.monitor[folder]=monitor;
-            const update = function(){parent.scan(folder,callback)};
+            const update = function(force){force = force || false; parent.scan(folder,callback, force)};
             let updatePromise = false;
             monitor.on("created", function (f, stat) {
-                if(!updatePromise){
+                if(!updatePromise && !parent.isExcluded(f)){
                     updatePromise = new Promise((v,j)=>{setTimeout(function() {update(); updatePromise=false}, 1000);});
                 }
             })
             monitor.on("changed", function (f, curr, prev) {
-                if(!updatePromise){
+                if(!updatePromise && !parent.isExcluded(f)){
                     updatePromise = new Promise((v,j)=>{setTimeout(function() {update(); updatePromise=false}, 1000);});
                 }
             })
             monitor.on("removed", function (f, stat) {
-                if(!updatePromise){
-                    updatePromise = new Promise((v,j)=>{setTimeout(function() {update(); updatePromise=false}, 1000);});
+                if(!updatePromise && !parent.isExcluded(f)){
+                    updatePromise = new Promise((v,j)=>{setTimeout(function() {update(true); updatePromise=false}, 1000);});
                 }
             })
         })
