@@ -16,10 +16,10 @@ describe('Rubah', function() {
     
     before(function(done){
         // rubah.watch('test/');
-        rubah.state = data1;
+        rubah.state.dispatch({type: 'apply', data: data1});
         rubah.register(templ1);
         rubah.applyToFile('test');
-        rubah.state={};
+        rubah.state.dispatch({type: 'apply', data: {}});
         done();
     });
     
@@ -47,24 +47,26 @@ describe('watcher', function() {
         
         try{
             fs.unlinkSync('test/content/y/x--test.txt');
-        }catch(e){console.log(e)};
+        }catch(e){
+            // console.log(e)
+        };
     })
     
-    it('should produce correct state', function(){
-        rubah.folder='test/content/y';
+    it('should produce correct state for materialize', function(){
+        rubah.folder='./test/content/y';
         rubah.interval = 0.1;
         return new Promise((v,j)=>{
             rubah.watch('test/content/y',function(x){
                 assert.deepEqual(x,data2)
-                rubah.monitor[rubah.folder].stop();
+                rubah.monitor['test/content/y'].stop();
                 v();
                 // setInterval(function(){
                 //     process.exit(0);
                 // },200);
             });
-            setInterval(function(){
+            setTimeout(function(){
                 rubah.register(templ1);
-                rubah.state=data2;
+                rubah.state.dispatch({type: 'apply', data: data2});
                 rubah.materialize();
             },500)
         });

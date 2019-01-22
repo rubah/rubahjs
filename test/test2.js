@@ -18,6 +18,8 @@ describe('watcher2', function() {
     it('should produce correct state', function(){
         const a = new Promise((v,j)=>{
             const rubah = Object.assign({},rubahjs);
+            // const rubah = rubahjs;
+            rubah.resetState();
             rubah.folder='test/content/y';
             rubah.interval = 0.1;
             rubah.watch('test/content/y',function(x){
@@ -27,14 +29,17 @@ describe('watcher2', function() {
             });
             setTimeout(function(){
                 rubah.register(templ1);
-                rubah.state=data2;
+                rubah.state.dispatch({type: 'apply', data: data2});
                 rubah.materialize();
             },500)
         });
         // return a
         return a.then(function(){
             return new Promise((v,j)=>{
-            const rubah = Object.assign({},rubahjs);
+                const rubah = Object.assign({},rubahjs);
+                // const rubah = rubahjs;
+                rubah.resetState();
+                // const rubah = require("../index");
                 rubah.folder='test/content/b';
                 rubah.interval = 0.1;
                 rubah.watch('test/content/b',function(x){

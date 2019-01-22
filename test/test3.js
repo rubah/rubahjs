@@ -16,11 +16,11 @@ describe('Exclude', function() {
     
     before(function(done){
         // rubah.watch('test/');
-        rubah.state = data1;
+        rubah.state.dispatch({type: 'apply', data: data1});
         rubah.register(templ1);
         rubah.applyToFile('test');
-        rubah.state={};
-        rubah.exclude.folder.push('test/content/b/');
+        rubah.state.dispatch({type: 'reset'});
+        rubah.exclude.folder.push('./test/content/b/');
         done();
     });
     
@@ -34,7 +34,7 @@ describe('Exclude', function() {
 
 describe('Exclude2', function() {
     
-    this.timeout(10000);
+    this.timeout(20000);
     
     const data2 = {
         var1: 'x',
@@ -48,14 +48,17 @@ describe('Exclude2', function() {
         
         try{
             fs.unlinkSync('test/content/y/x--test.txt');
-        }catch(e){console.log(e)};
+        }catch(e){
+            // console.log(e)
+            
+        };
     })
     
-    it('should ignore file deletion', function(){
+    it('should ignore file deletion2', function(){
         const a = new Promise((v,j)=>{
             const rubah = Object.assign({},rubahjs);
             rubah.folder='test/content/y';
-            rubah.exclude.file.push('test/content/y/x--test.txt')
+            rubah.exclude.file.push('test/content/y/x--test.txt');
             rubah.interval = 0.1;
             rubah.watch('test/content/y',function(x){
                 assert.deepEqual(x,data2);
@@ -63,10 +66,11 @@ describe('Exclude2', function() {
             });
             setTimeout(function(){
                 rubah.register(templ1);
-                rubah.state=data2;
+                rubah.state.dispatch({type: 'apply', data: data2});
                 rubah.materialize();
+                rubah.state.dispatch({type: 'reset'});
             },500)
-            setInterval(function(){v()},3000)
+            setInterval(function(){v()},5000)
         });
         // return a
         return a.then(function(){
@@ -74,6 +78,7 @@ describe('Exclude2', function() {
             const rubah = Object.assign({},rubahjs);
                 rubah.folder='test/content/b';
                 rubah.interval = 0.1;
+                rubah.exclude.file.push('test/content/b/a--test.txt');
                 rubah.watch('test/content/b',function(x){
                     assert.fail(JSON.stringify(x))
                     rubah.monitor[rubah.folder].stop();
@@ -81,8 +86,9 @@ describe('Exclude2', function() {
                 });
                 setTimeout(function(){
                     fs.unlinkSync('test/content/b/a--test.txt')
-                },2500)
+                },1500)
                 setTimeout(function(){
+                    rubah.monitor[rubah.folder].stop();
                     v();
                 },5000)
             });

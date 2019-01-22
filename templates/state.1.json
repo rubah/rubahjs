@@ -1,0 +1,70 @@
+{
+	"packageJson": {
+		"data": {
+			"name": "rubahjs",
+			"version": "0.1.9",
+			"description": "all in one templating solution, create all templated file from a single state tree, or extract your state tree from all file that have templates",
+			"main": "index.js",
+			"scripts": {
+				"exec": "node exec.js",
+				"apply": "node apply.js",
+				"test": "nyc mocha",
+				"preversion": "npm test",
+				"version": "git add .",
+				"postversion": "git push",
+				"preinstall": "ncu -a"
+			},
+			"repository": {
+				"type": "git",
+				"url": "git+https://github.com/averman/rubahjs.git"
+			},
+			"keywords": [
+				"file",
+				"template",
+				"handlebars",
+				"state"
+			],
+			"author": "averman@gmail.com",
+			"license": "ISC",
+			"bugs": {
+				"url": "https://github.com/averman/rubahjs/issues"
+			},
+			"homepage": "https://github.com/averman/rubahjs#readme",
+			"devDependencies": {
+				"mocha": "^5.2.0",
+				"nyc": "^13.1.0",
+				"why-is-node-running": "^2.0.3"
+			},
+			"dependencies": {
+				"files-tree": "^1.0.8",
+				"is-directory": "^0.3.1",
+				"js-beautify": "^1.8.9",
+				"lodash": "^4.17.11",
+				"markdown": "^0.5.0",
+				"recursive-readdir": "^2.2.2",
+				"redux": "^4.0.1",
+				"reversible-handlebars": "0.2.2",
+				"turndown": "^5.0.1",
+				"watch": "^1.0.2"
+			}
+		}
+	},
+	"doc": {
+		"description": {
+			"key": "description",
+			"data": "this project inspired by [plop js](https://plopjs.com/) and aims to bring project templating to a whole new level. \n\nRubahjs manage all your data required for templating into a single state tree, and by single function call, you can create all templated file from that single state tree\n\nMore over, rubahjs also provide reverse templating (for simple [handlebar](https://handlebarsjs.com/) template) using [reversible handlebar](https://github.com/averman/reversible-handlebars). Using Rubahjs you can scan all the files in your project folder, and create a single state tree"
+		}
+	},
+	"test": {
+		"handlebarMultiTemplating": {
+			"key": "handlebarMultiTemplating",
+			"data": "Create multiple file from single template and the state tree",
+			"cases": [
+				{
+					"description": "Creating template",
+					"content": "const template = {};"
+				}
+			]
+		}
+	}
+}
