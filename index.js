@@ -8,6 +8,7 @@ const isDirectory = require('is-directory');
 const path = require("path")
 const redux = require("redux");
 const beautifier = require("./beautifier");
+const mkdir = require("./mkdir");
 
 const reducers = {
     apply: (state,action)=>{return lodash.merge({},state,action.data)}
@@ -63,6 +64,7 @@ const rubahjs = {
             const fn = this.apply(templateName,state, 'filename');
             // console.log('applying to',fn);
             const content = this.apply(templateName,state);
+            mkdir(fn);
             fs.writeFileSync(fn,content);
             beautifier(fn);
         }
