@@ -1,6 +1,5 @@
 # rubahjs
 ![version](https://img.shields.io/badge/version-0.2.1-brightgreen.svg)
-
 ![coverage](https://img.shields.io/badge/coverage-27%-ff0000.svg)
 ---
 file template and reverse template service that watches and sync for changes
