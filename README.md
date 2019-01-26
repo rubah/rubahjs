@@ -1,5 +1,5 @@
 # rubahjs
-![Version](https://img.shields.io/badge/version-0.1.9-green.svg)
+![Version](https://img.shields.io/badge/version-0.2.1-green.svg)
 ---
 file template and reverse template service that watches and sync for changes
 
@@ -14,14 +14,6 @@ More over, rubahjs also provide reverse templating (for simple [handlebar](https
 ``` npm install --save rubahjs```
 
 ## Features
-
-##### Feature handlebar multi templating: 
-
-
-[comment]: <> (===examples===)
-[comment]: <> (===examples ends===)
-
-[comment]: <> (===)
 [comment]: <> (end of features)
 
 

@@ -1,197 +1,162 @@
 const hb = require("reversible-handlebars");
-const watch = require("watch");
-const fs = require("fs");
 const lodash = require("lodash");
-const ft = require('files-tree');
-const recursive = require("recursive-readdir");
-const isDirectory = require('is-directory');
-const path = require("path")
-const redux = require("redux");
-const beautifier = require("./beautifier");
-const mkdir = require("./mkdir");
+const redux = require("./redux");
+const fs = require("fs");
+const source = require("./source");
 
-const reducers = {
-    apply: (state,action)=>{return lodash.merge({},state,action.data)}
-};
-const reducer = function(state = {}, action){
-    if(reducers[action.type]){
-        return reducers[action.type](state,action);
+Error.stackTraceLimit = Infinity;
+const silentError = function(e, additionalInfo, logfile) {
+    additionalInfo = additionalInfo || '';
+    if (additionalInfo && additionalInfo.toString().length > 0)
+        additionalInfo = additionalInfo.toString() + '\n';
+    logfile = logfile || 'error';
+    logfile += '.log';
+    const time = (new Date(Date.now()));
+    fs.appendFile(logfile, time + ':   ' + e.message + '\n' +
+        additionalInfo +
+        e.stack + '\n\n', 'utf8', x => x);
+}
+
+const rubahjsFactory = function(opts) {
+    return {
+        new: rubahjsFactory,
+        source,
+        templates: {},
+        register: function(template) {
+            if (!template.stateToData) template.stateToData = function(x) { return [x] };
+            if (!template.dataToState) template.dataToState = function(x) { return x };
+            if (template.reducers) {
+                for (const k of Object.keys(template.reducers)) {
+                    this.reducers[k] = template.reducers[k];
+                }
+            }
+            if (template.listeners) {
+                for (const k of Object.keys(template.listeners)) {
+                    this.state.subscribe(template.listeners[k](this));
+                }
+            }
+            if (typeof template.read == "undefined") template.read = true;
+            if (typeof template.write == "undefined") template.write = true;
+            template.priority = template.priority || 100;
+            this.templates[template.templateName] = template;
+        },
+        state: redux.store,
+        apply: function(templateName, data, templateId) {
+            const template = this.templates[templateName];
+            if (!template) {
+                silentError(new Error('unknown template ' + templateName));
+                return '';
+            }
+            const templateBody = template[templateId ? templateId : 'template'];
+            if (!templateBody) {
+                silentError(new Error('unknown templateid'));
+                return '';
+            }
+            if (template.partials)
+                for (const partial of template.partials) hb.registerPartial(partial.name, partial.template);
+            if (template.helpers)
+                for (const helper of template.helpers) hb.registerHelper(helper);
+            try {
+                return hb.apply(templateBody, data);
+            }
+            catch (e) {
+                silentError(e);
+                return '';
+            }
+        },
+        reverse: function(templateName, content, templateId) {
+            const template = this.templates[templateName];
+            if (!template) {
+                silentError(new Error('unknown template ' + templateName));
+                return {};
+            }
+            const templateBody = template[templateId ? templateId : 'template'];
+            if (!templateBody) {
+                silentError(new Error('unknown templateid'));
+                return {};
+            }
+            if (template.partials)
+                for (const partial of template.partials) hb.registerPartial(partial);
+            if (template.helpers)
+                for (const helper of template.helpers) hb.registerHelper(helper);
+            return hb.reverse(templateBody, content);
+        },
+        create: function(templateName) {
+            const template = this.templates[templateName];
+            if (!template.write) return;
+            if (!template) throw new Error('unknown template ' + templateName);
+            const states = template.stateToData(this.state.getState());
+            let res = [];
+            for (const state of states) {
+                const fn = this.apply(templateName, state, 'filename');
+                const content = this.apply(templateName, state);
+                const source = template.source || 'file';
+                res.push({
+                    source,
+                    id: fn,
+                    body: () => content
+                });
+            }
+            const promises = [];
+            for (const rbo of res) {
+                if (!this.source.sources[rbo.source]) {
+                    silentError(new Error('unknown source: ' + rbo.source));
+                    return Promise.reject(new Error('unknown source: ' + rbo.source));
+                }
+                promises.push(this.source.sources[rbo.source].create(rbo));
+            }
+            return Promise.all(promises);
+        },
+        extract: function(rbo) {
+            let res = [];
+            const templates = Object.values(this.templates).sort((a, b) => b.priority - a.priority).map(x => x.templateName);
+            for (const tn of templates) {
+                if (!this.templates[tn].read) continue;
+                let v, v2;
+                try {
+                    let key = 'filename';
+                    if (rbo.key) key = rbo.key;
+                    v = this.reverse(tn, rbo.id, key);
+                    if (v) {
+                        let content = rbo.body();
+                        v2 = Object.assign({}, v, this.reverse(tn, content));
+                        v2 = this.templates[tn].dataToState(v2);
+                        if (v2) {
+                            if(this.templates[tn].action)
+                                res.push(this.templates[tn].action(v2));
+                            else
+                                res.push({ type: "apply", data: v2 });
+                        }
+                        // if (v2) this.state.dispatch({ type: "apply", data: v2 });
+                    }
+                }
+                catch (e) {
+                    if (v)
+                        silentError(e, rbo.id + '\n' + tn);
+                    if (process.env.rubahlog && process.env.rubahlog == "trace")
+                        silentError(e, rbo.id + '\n' + tn, 'trace');
+                };
+            };
+            return res;
+        },
+        scan: function(id, callback) {
+            const rubah = this;
+            return rubah.source.scan(id).then(v => {
+                let rbos = [];
+                for (const res of v) rbos = rbos.concat(res);
+                let actions = [];
+                for (const rbo of rbos) actions = actions.concat(rubah.extract(rbo));
+                for(const action of actions) rubah.state.dispatch(action);
+                if (callback && actions.length > 0) return callback(rubah.state.getState());
+                else return rubah.state.getState();
+            });
+        },
+        materialize: function() {
+            const templates = Object.values(this.templates).sort((a, b) => b.priority - a.priority).map(x => x.templateName);
+            for (const tn of templates)
+                this.create(tn);
+        },
     }
 }
 
-const rubahjs = {
-    helpers: {
-        json: require("./helpers/jsonHelper"),
-        comment: require("./helpers/commentHelper"),
-        md: require("./helpers/mdHelper")
-    },
-    reducers: reducers,
-    templates: {},
-    state: redux.createStore(reducer,{}),
-    resetState: function(){
-        this.state = redux.createStore(reducer,{})
-        this.state.dispatch({type: "apply", data: {}})
-    },
-    monitor: {},
-    exclude: {folder: [], file: []},
-    folder: '.',
-    apply: function(templateName, data, templateId){
-        const fileTemplate = this.templates[templateName];
-        if(!fileTemplate)throw new Error('unknown template '+templateName);
-        const template = fileTemplate[templateId?templateId:'template'];
-        if(!template)throw new Error('unknown templateid');
-        if(fileTemplate.partials)for(const partial of fileTemplate.partials)hb.registerPartial(partial.name, partial.template);
-        for(const helper in this.helpers){hb.registerHelper(this.helpers[helper])};
-        if(fileTemplate.helpers)for(const helper of fileTemplate.helpers)hb.registerHelper(helper);
-        return hb.apply(template, data);
-    },
-    reverse: function(templateName, content, templateId){
-        const fileTemplate = this.templates[templateName];
-        if(!fileTemplate)throw new Error('unknown template '+templateName);
-        const template = fileTemplate[templateId?templateId:'template'];
-        if(!template)throw new Error('unknown templateid');
-        if(fileTemplate.partials)for(const partial of fileTemplate.partials)hb.registerPartial(partial);
-        for(const helper in this.helpers){hb.registerHelper(this.helpers[helper])};
-        if(fileTemplate.helpers)for(const helper of fileTemplate.helpers)hb.registerHelper(helper);
-        return hb.reverse(template, content);
-    },
-    applyToFile: function(templateName){
-        const fileTemplate = this.templates[templateName];
-        if(!fileTemplate.write)return;
-        if(!fileTemplate)throw new Error('unknown template '+templateName);
-        const states = fileTemplate.stateToData(this.state.getState());
-        for(const state of states){
-            const fn = this.apply(templateName,state, 'filename');
-            // console.log('applying to',fn);
-            const content = this.apply(templateName,state);
-            mkdir(fn);
-            fs.writeFileSync(fn,content);
-            beautifier(fn);
-        }
-    },
-    fileCheck: function(fn){
-        let changed = false;
-        const templates = Object.values(this.templates).sort((a,b)=>b.priority - a.priority).map(x=>x.templateName);
-        for(const tn of templates){
-            if(!this.templates[tn].read) continue;
-            let v, v2;
-            try{
-               v = this.reverse(tn,fn,'filename');
-               if(v){
-                    let content = fs.readFileSync(fn).toString('utf8');
-                    v2 = Object.assign({},v,this.reverse(tn,content));
-                    v2 = this.templates[tn].dataToState(v2);
-                    if(v2) this.state.dispatch({type: "apply", data: v2});
-                    // this.state = lodash.merge(this.state,v);
-                    
-                    changed = true;
-               }
-            }catch(e){
-                if(v)
-                    fs.appendFile('scan.log',new Date(Date.now()) + ':   ' + fn+'\n'+e.stack+'\n','utf8',x=>x);
-                if(process.env.rubahlog && process.env.rubahlog=="trace"){
-                    console.log(fn);
-                    console.log(e);
-                }
-            };
-        };
-        return changed;
-    },
-    register: function(fileTemplate){
-        if(!fileTemplate.stateToData)fileTemplate.stateToData = function(x){return [x]};
-        if(!fileTemplate.dataToState)fileTemplate.dataToState = function(x){return x};
-        if(fileTemplate.reducers){
-            for(const k of Object.keys(fileTemplate.reducers)){
-                this.reducers[k] = fileTemplate.reducers[k];
-            }
-        }
-        if(fileTemplate.listeners){
-            for(const k of Object.keys(fileTemplate.listeners)){
-                this.state.subscribe(fileTemplate.listeners[k](this));
-            }
-        }
-        if(typeof fileTemplate.read == "undefined")fileTemplate.read = true;
-        if(typeof fileTemplate.write == "undefined")fileTemplate.write = true;
-        fileTemplate.priority = fileTemplate.priority || 100;
-        this.templates[fileTemplate.templateName]=fileTemplate;
-    },
-
-    isExcluded: function(f){
-        // console.log("checking exclusion of",f);
-        const file = f.startsWith('.')?path.resolve(process.cwd(),this.folder,f):f;
-        let skipFlag = false;
-        for(let k of this.exclude.folder){
-            const check = k.startsWith('.')?path.resolve(process.cwd(),this.folder,k):k;
-            // console.log(check, file);
-            if(file.startsWith(check)){
-                // console.log('skipping '+file+' on rule folder of '+check);
-                skipFlag = true;
-                break;
-            }
-        }
-        if(!skipFlag)
-            for(let k of this.exclude.file){
-                const check = k.startsWith('.')?path.resolve(process.cwd(),this.folder,k):k;
-                // console.log(check, file);
-                if(file == check){
-                // console.log('skipping '+file+' on rule file of '+check);
-                    skipFlag = true;
-                    break;
-                }
-            }
-        return skipFlag;
-    },
-    scan: function(folder, callback, forced){
-        if(!callback && this.callback)callback=this.callback;
-        fs.writeFileSync('scan.log','');
-        folder = folder || this.folder;
-        let changed = false;
-        recursive(folder,(err,files)=>{
-            if(err)throw(err);
-            // console.log(f);
-            for(let f of files){
-                if(f.startsWith(folder))f=path.relative(folder,f);
-                // console.log(folder,f);
-                if(!this.isExcluded(path.resolve(folder,f))){
-                    changed = this.fileCheck(path.resolve(folder,f)) || changed;
-                }
-            }
-            if(changed || forced)
-                callback(this.state.getState());
-        });
-    },
-    materialize: function(folder){
-        folder = folder || this.folder;
-        const templates = Object.values(this.templates).sort((a,b)=>b.priority - a.priority).map(x=>x.templateName);
-        for(const tn of templates)
-            this.applyToFile(tn);
-    },
-    watch: function(folder, callback){
-        if(!callback && this.callback)callback=this.callback;
-        folder = folder || this.folder;
-        const parent = this;
-        watch.createMonitor(folder, {interval: this.interval || 5}, function (monitor) {
-            monitor.files[folder];
-            parent.monitor[folder]=monitor;
-            const update = function(force){force = force || false; parent.scan(folder,callback, force)};
-            let updatePromise = false;
-            monitor.on("created", function (f, stat) {
-                if(!updatePromise && !parent.isExcluded(f)){
-                    updatePromise = new Promise((v,j)=>{setTimeout(function() {update(); updatePromise=false}, 1000);});
-                }
-            })
-            monitor.on("changed", function (f, curr, prev) {
-                if(!updatePromise && !parent.isExcluded(f)){
-                    updatePromise = new Promise((v,j)=>{setTimeout(function() {update(); updatePromise=false}, 1000);});
-                }
-            })
-            monitor.on("removed", function (f, stat) {
-                if(!updatePromise && !parent.isExcluded(f)){
-                    updatePromise = new Promise((v,j)=>{setTimeout(function() {update(true); updatePromise=false}, 1000);});
-                }
-            })
-        })
-    }
-};
-
-module.exports = rubahjs;
+module.exports = rubahjsFactory();
