@@ -3,6 +3,7 @@ const lodash = require("lodash");
 const redux = require("./redux");
 const fs = require("fs");
 const source = require("./source");
+const fileSource = require("./fileSource");
 
 Error.stackTraceLimit = Infinity;
 const silentError = function(e, additionalInfo, logfile) {
@@ -18,9 +19,10 @@ const silentError = function(e, additionalInfo, logfile) {
 }
 
 const rubahjsFactory = function(opts) {
-    return {
-        new: rubahjsFactory,
+    opts = opts || {};
+    const rjs = {
         source,
+        new: rubahjsFactory,
         templates: {},
         register: function(template) {
             if (!template.stateToData) template.stateToData = function(x) { return [x] };
@@ -153,10 +155,18 @@ const rubahjsFactory = function(opts) {
         },
         materialize: function() {
             const templates = Object.values(this.templates).sort((a, b) => b.priority - a.priority).map(x => x.templateName);
+            const promises = [];
             for (const tn of templates)
-                this.create(tn);
+                promises.push(this.create(tn));
+            return Promise.all(promises);
         },
-    }
+    };
+    if(Array.isArray(opts.source)){
+        for(const src of opts.source)
+            rjs.source.register(src);
+    }else
+        rjs.source.register(fileSource);
+    return rjs;
 }
 
 module.exports = rubahjsFactory();
