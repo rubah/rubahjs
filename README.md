@@ -1,4 +1,5 @@
-# rubahjs
+![logo](img/rubahjs_banner.png)
+---
 ![version](https://img.shields.io/badge/version-0.3.0-brightgreen.svg)
 ![coverage](https://img.shields.io/badge/coverage-27%25-ff0000.svg)
 ---
@@ -13,6 +14,38 @@ More over, rubahjs also provide reverse templating (for simple [handlebar](https
 ``` npm install --save rubahjs```
 
 ## Features
+
+##### Custom reducer: 
+
+Extract state data from multiple files
+
+
+###### Setting up rubahjs:
+
+```js
+const rubahjs = require("rubahjs");
+```
+
+We are importing rubahjs using standard require. By default the result returned are already instantiated and
+ready to use. If you want to instantiate rubahjs manualy, you can use the constructor in ```new rubahjs.new(opts)```.
+For more info on rubahjs constructor refer to [constructor manual](doc/compiled/constructor.md)
+
+
+##### File exclusion: 
+
+Extract state data from multiple files
+
+
+###### Setting up rubahjs:
+
+```js
+const rubahjs = require("rubahjs");
+```
+
+We are importing rubahjs using standard require. By default the result returned are already instantiated and
+ready to use. If you want to instantiate rubahjs manualy, you can use the constructor in ```new rubahjs.new(opts)```.
+For more info on rubahjs constructor refer to [constructor manual](doc/compiled/constructor.md)
+
 
 ##### Handlebar multi templating: 
 
@@ -102,5 +135,69 @@ assertFile('abc.txt', 'this is abc!!');
 
 the result would be a creation of three files: 1.txt, test.txt, abc.txt with their content as stated in 
 the state tree. the assertFile is an expression that asserting that the content of the file is correct
+
+
+##### Multiple extractor of single file: 
+
+Extract state data from multiple files
+
+
+###### Setting up rubahjs:
+
+```js
+const rubahjs = require("rubahjs");
+```
+
+We are importing rubahjs using standard require. By default the result returned are already instantiated and
+ready to use. If you want to instantiate rubahjs manualy, you can use the constructor in ```new rubahjs.new(opts)```.
+For more info on rubahjs constructor refer to [constructor manual](doc/compiled/constructor.md)
+
+
+##### Non file source: 
+
+Extract state data from multiple files
+
+
+###### Setting up rubahjs:
+
+```js
+const rubahjs = require("rubahjs");
+```
+
+We are importing rubahjs using standard require. By default the result returned are already instantiated and
+ready to use. If you want to instantiate rubahjs manualy, you can use the constructor in ```new rubahjs.new(opts)```.
+For more info on rubahjs constructor refer to [constructor manual](doc/compiled/constructor.md)
+
+
+##### State extraction: 
+
+Extract state data from multiple files
+
+
+###### Setting up rubahjs:
+
+```js
+const rubahjs = require("rubahjs");
+```
+
+We are importing rubahjs using standard require. By default the result returned are already instantiated and
+ready to use. If you want to instantiate rubahjs manualy, you can use the constructor in ```new rubahjs.new(opts)```.
+For more info on rubahjs constructor refer to [constructor manual](doc/compiled/constructor.md)
+
+
+##### State subscriber: 
+
+Extract state data from multiple files
+
+
+###### Setting up rubahjs:
+
+```js
+const rubahjs = require("rubahjs");
+```
+
+We are importing rubahjs using standard require. By default the result returned are already instantiated and
+ready to use. If you want to instantiate rubahjs manualy, you can use the constructor in ```new rubahjs.new(opts)```.
+For more info on rubahjs constructor refer to [constructor manual](doc/compiled/constructor.md)
 
 
