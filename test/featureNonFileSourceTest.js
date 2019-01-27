@@ -1,9 +1,9 @@
 /**
  *
- * Extract state data from multiple files
+ * Extend rubahjs to extract state data from anything
  *
  **/
-//<featureid>3</featureid>
+//<featureid>7</featureid>
 describe("Feature extract state data", function() {
     it("Should get the correct state", function() {
         /**

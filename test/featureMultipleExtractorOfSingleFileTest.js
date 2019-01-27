@@ -1,6 +1,6 @@
 /**
  *
- * Extract state data from multiple files
+ * Define multiple overlaping templates to extract a file in various means
  *
  **/
 //<featureid>3</featureid>

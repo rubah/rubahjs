@@ -1,9 +1,9 @@
 /**
  *
- * Extract state data from multiple files
+ * Create a redux action listener that will trigger on specific action
  *
  **/
-//<featureid>3</featureid>
+//<featureid>6</featureid>
 describe("Feature extract state data", function() {
     it("Should get the correct state", function() {
         /**

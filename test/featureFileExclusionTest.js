@@ -1,9 +1,9 @@
 /**
  *
- * Extract state data from multiple files
+ * Exclude files from data extraction by rubahjs
  *
  **/
-//<featureid>3</featureid>
+//<featureid>4</featureid>
 describe("Feature extract state data", function() {
     it("Should get the correct state", function() {
         /**

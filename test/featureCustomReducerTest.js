@@ -1,9 +1,9 @@
 /**
  *
- * Extract state data from multiple files
+ * Use redux reducer to merge extraction data into the state tree
  *
  **/
-//<featureid>3</featureid>
+//<featureid>5</featureid>
 describe("Feature extract state data", function() {
     it("Should get the correct state", function() {
         /**

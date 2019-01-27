@@ -14,7 +14,7 @@ describe("Feature handlebar multi templating", function() {
      * ---
      * We are importing rubahjs using standard require. By default the result returned are already instantiated and
      * ready to use. If you want to instantiate rubahjs manualy, you can use the constructor in ```new rubahjs.new(opts)```.
-     * For more info on rubahjs constructor refer to [constructor manual](doc/compiled/constructor.md)
+     * For more info on rubahjs constructor refer to [constructor manual](../reference/core.md#constructor)
      *
      **/
     //example:
@@ -35,11 +35,11 @@ describe("Feature handlebar multi templating", function() {
      * ---
      * For more templating with ```{{handlebars}}```
      * you can refer to [handlebars js](https://handlebarsjs.com/). For more **rubahjs** templating options refer to 
-     * [rubahjs templating reference](doc/compiled/reference/templates.md)
+     * [rubahjs templating reference](../reference/templates.md)
      * ---
      * The register function will register the template into rubahjs instance, making it ready to use with subsequent rubahjs api call
      * For more **rubahjs** api refer to 
-     * [rubahjs templating reference](doc/compiled/reference/api.md)
+     * [rubahjs templating reference](../reference/core.md#api)
      *
      **/
     //example:
