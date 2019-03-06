@@ -4,7 +4,7 @@
 Exclude files from data extraction by rubahjs
 
 
-###### Setting up rubahjs:
+Setting up rubahjs
 
 ```js
 const rubahjs = require("rubahjs");

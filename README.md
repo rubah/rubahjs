@@ -1,7 +1,7 @@
 ![logo](http://static.averism.com/rubahjs_banner.png)
 
 ![version](https://img.shields.io/badge/version-0.3.0-brightgreen.svg)
-![coverage](https://img.shields.io/badge/coverage-27%25-ff0000.svg)
+![coverage](https://img.shields.io/badge/coverage-52%25-b74800.svg)
 ---
 file template and reverse template service that watches and sync for changes
 
@@ -15,38 +15,24 @@ More over, rubahjs also provide reverse templating (for simple [handlebar](https
 
 ## Features
 
-##### [Handlebar multi templating](documentation/feature/handlebarMultiTemplating.md): 
-
-Create multiple files from single template and the state tree
+- [Handlebar multi templating](documentation/feature/handlebarMultiTemplating.md)
 
 
-##### [State extraction](documentation/feature/stateExtraction.md): 
-
-Extract state data from multiple files
+- [State extraction](documentation/feature/stateExtraction.md)
 
 
-##### [Multiple extractor of single file](documentation/feature/multipleExtractorOfSingleFile.md): 
-
-Define multiple overlaping templates to extract a file in various means
+- [Multiple extractor of single file](documentation/feature/multipleExtractorOfSingleFile.md)
 
 
-##### [File exclusion](documentation/feature/fileExclusion.md): 
-
-Exclude files from data extraction by rubahjs
+- [File exclusion](documentation/feature/fileExclusion.md)
 
 
-##### [Custom reducer](documentation/feature/customReducer.md): 
-
-Use redux reducer to merge extraction data into the state tree
+- [Custom reducer](documentation/feature/customReducer.md)
 
 
-##### [State subscriber](documentation/feature/stateSubscriber.md): 
-
-Create a redux action listener that will trigger on specific action
+- [State subscriber](documentation/feature/stateSubscriber.md)
 
 
-##### [Non file source](documentation/feature/nonFileSource.md): 
-
-Extend rubahjs to extract state data from anything
+- [Non file source](documentation/feature/nonFileSource.md)
 
 

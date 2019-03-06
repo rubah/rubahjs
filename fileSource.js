@@ -51,6 +51,7 @@ const fileSource = function() {
             if (isDirectory.sync(id)) {
                 return new Promise((v, j) => {
                     recursive(id, (err, files) => {
+                        if(err) throw err;
                         const promises = [];
                         if (err) return j(err);
                         for (let f of files) {
@@ -67,6 +68,7 @@ const fileSource = function() {
                 return fsrc.readFile(id);
             }
         },
+        
         //return promise: execution response
         create: function(rbo) {
             mkdir(rbo.id);

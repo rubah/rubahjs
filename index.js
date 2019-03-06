@@ -1,6 +1,5 @@
 const hb = require("reversible-handlebars");
 const lodash = require("lodash");
-const redux = require("./redux");
 const fs = require("fs");
 const source = require("./source");
 const fileSource = require("./fileSource");
@@ -20,6 +19,7 @@ const silentError = function(e, additionalInfo, logfile) {
 
 const rubahjsFactory = function(opts) {
     opts = opts || {};
+    const redux = require("./redux")();
     const rjs = {
         source,
         new: rubahjsFactory,

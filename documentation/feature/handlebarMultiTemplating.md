@@ -4,7 +4,7 @@
 Create multiple files from single template and the state tree
 
 
-###### Setting up rubahjs:
+Setting up rubahjs
 
 ```js
 const rubahjs = require("rubahjs");
@@ -12,10 +12,10 @@ const rubahjs = require("rubahjs");
 
 We are importing rubahjs using standard require. By default the result returned are already instantiated and
 ready to use. If you want to instantiate rubahjs manualy, you can use the constructor in ```new rubahjs.new(opts)```.
-For more info on rubahjs constructor refer to [constructor manual](doc/compiled/constructor.md)
+For more info on rubahjs constructor refer to [constructor manual](../reference/core.md#constructor)
 
 
-###### Creating and registering template:
+Creating and registering template
 
 ```js
 const template = {
@@ -40,14 +40,14 @@ In this example we are simply returning the branch of ```test``` from the state 
 
 For more templating with ```{{handlebars}}```
 you can refer to [handlebars js](https://handlebarsjs.com/). For more **rubahjs** templating options refer to 
-[rubahjs templating reference](doc/compiled/reference/templates.md)
+[rubahjs templating reference](../reference/templates.md)
 
 The register function will register the template into rubahjs instance, making it ready to use with subsequent rubahjs api call
 For more **rubahjs** api refer to 
-[rubahjs templating reference](doc/compiled/reference/api.md)
+[rubahjs templating reference](../reference/core.md#api)
 
 
-###### Setting up the state tree and running rubahjs:
+Setting up the state tree and running rubahjs
 
 ```js
 rubahjs.state.dispatch({
@@ -77,7 +77,7 @@ The materialize function will apply the state tree to all the templates register
 The materialize function will return a collection of promises which for every templates should return their creation response
 
 
-###### The Result:
+The Result
 
 ```js
 assertFile('1.txt', 'this is number one!!');

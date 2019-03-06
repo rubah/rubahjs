@@ -4,7 +4,7 @@
 Use redux reducer to merge extraction data into the state tree
 
 
-###### Setting up rubahjs:
+Setting up rubahjs
 
 ```js
 const rubahjs = require("rubahjs");

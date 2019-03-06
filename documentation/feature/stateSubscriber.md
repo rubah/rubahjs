@@ -4,7 +4,7 @@
 Create a redux action listener that will trigger on specific action
 
 
-###### Setting up rubahjs:
+Setting up rubahjs
 
 ```js
 const rubahjs = require("rubahjs");

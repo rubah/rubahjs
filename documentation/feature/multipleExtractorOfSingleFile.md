@@ -4,7 +4,7 @@
 Define multiple overlaping templates to extract a file in various means
 
 
-###### Setting up rubahjs:
+Setting up rubahjs
 
 ```js
 const rubahjs = require("rubahjs");

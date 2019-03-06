@@ -4,7 +4,7 @@
 Extend rubahjs to extract state data from anything
 
 
-###### Setting up rubahjs:
+Setting up rubahjs
 
 ```js
 const rubahjs = require("rubahjs");
