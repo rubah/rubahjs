@@ -1,7 +1,7 @@
 ![logo](http://static.averism.com/rubahjs_banner.png)
 
 ![version](https://img.shields.io/badge/version-0.3.1-brightgreen.svg)
-![coverage](https://img.shields.io/badge/coverage-52%25-b74800.svg)
+![coverage](https://img.shields.io/badge/coverage-49%25-c23d00.svg)
 ---
 file template and reverse template service that watches and sync for changes
 

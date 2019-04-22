@@ -48,6 +48,7 @@ const fileSource = function() {
         //return promise: array of rbo
         scan: function(id) {
             const fsrc = this;
+            // let relative = path.relative(process.cwd(),id);
             if (isDirectory.sync(id)) {
                 return new Promise((v, j) => {
                     recursive(id, (err, files) => {
@@ -56,7 +57,7 @@ const fileSource = function() {
                         if (err) return j(err);
                         for (let f of files) {
                             // console.log(folder,f);
-                            if (!fsrc.isExcluded(path.resolve(id, f))) {
+                            if (!fsrc.isExcluded(path.resolve(f))) {
                                 promises.push(fsrc.readFile(f));
                             }
                         }

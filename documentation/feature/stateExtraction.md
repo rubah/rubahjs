@@ -70,6 +70,7 @@ We'll extract the state data from the 3 files we created earlier by using ```rub
 ```js
 rubahjs.scan('.', function(state) {
     console.log(state);
+    console.log = cl;
 })
 ```
 
