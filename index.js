@@ -19,6 +19,10 @@ const silentError = function(e, additionalInfo, logfile) {
 
 const rubahjsFactory = function(opts) {
     opts = opts || {};
+    const log = function(x, ...y){
+        if(opts.verbose)
+            console.log(x.concat(y).map((a, i, ar) => i % 2 == 0 ? ar[Math.floor(i / 2)] : ar[Math.floor(i / 2) + x.length]).join(''));
+    }
     const redux = require("./redux")();
     const rjs = {
         source,
@@ -105,6 +109,7 @@ const rubahjsFactory = function(opts) {
                     silentError(new Error('unknown source: ' + rbo.source));
                     return Promise.reject(new Error('unknown source: ' + rbo.source));
                 }
+                log`\nmaterializing ${templateName} ${rbo.source} ${rbo.id}`;
                 promises.push(this.source.sources[rbo.source].create(rbo));
             }
             return Promise.all(promises);
@@ -120,15 +125,18 @@ const rubahjsFactory = function(opts) {
                     if (rbo.key) key = rbo.key;
                     v = this.reverse(tn, rbo.id, key);
                     if (v) {
+                        log`\nextracting ${tn} from ${rbo.id}`;
                         let content = rbo.body();
                         v2 = Object.assign({}, v, this.reverse(tn, content));
                         v2 = this.templates[tn].dataToState(v2);
                         if (v2) {
+                            log`  - extract success: ${Object.keys(v2).length} root object: ${Object.keys(v2)}`
                             if(this.templates[tn].action)
                                 res.push(this.templates[tn].action(v2));
                             else
                                 res.push({ type: "apply", data: v2 });
-                        }
+                        }else
+                            log`  - extract failed`
                         // if (v2) this.state.dispatch({ type: "apply", data: v2 });
                     }
                 }
@@ -146,10 +154,11 @@ const rubahjsFactory = function(opts) {
             return rubah.source.scan(id).then(v => {
                 let rbos = [];
                 for (const res of v) rbos = rbos.concat(res);
+                log`scanning ${rbos.length} objects`;
                 let actions = [];
                 for (const rbo of rbos) actions = actions.concat(rubah.extract(rbo));
                 for(const action of actions) rubah.state.dispatch(action);
-                if (callback && actions.length > 0) return callback(rubah.state.getState());
+                if (callback) return callback(rubah.state.getState());
                 else return rubah.state.getState();
             });
         },

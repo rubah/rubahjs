@@ -6,7 +6,7 @@
 	"scripts": {
 		"exec": "node exec.js",
 		"apply": "node apply.js",
-		"test": "nyc --reporter=json-summary mocha ",
+		"test": "nyc --reporter=json-summary mocha --colors && nyc report --colors",
 		"preversion": "npm test",
 		"version": "git add .",
 		"postversion": "git push"

@@ -66,11 +66,13 @@ describe("!!!Feature extract state data", function() {
          * 
          *
          **/
+         let cl = console.log;
+         console.log = x=>x;
         //example:
         rubahjs.scan('.',function(state){
             console.log(state);
+            console.log = cl;
         })
         //:example
-        
     });
 });
